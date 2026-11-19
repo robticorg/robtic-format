@@ -2,7 +2,7 @@ import { unzipSync } from 'fflate';
 import { ASSET_TYPES, DEFAULT_LIMITS, FORMAT, MANIFEST_FILE, type Limits } from './constants.ts';
 import { RobticError } from './errors.ts';
 import { canonicalJson, sha256 } from './hash.ts';
-import { wrongPlaceMessage, type Kind } from './kinds.ts';
+import { KIND_NAME, wrongPlaceMessage, type Kind } from './kinds.ts';
 import { integrityScope, REF_GROUPS, type Manifest } from './manifest.ts';
 import { collectPointers, findRef } from './refs.ts';
 import { findSecret } from './secrets.ts';
@@ -157,7 +157,7 @@ const isStr = (v: unknown): v is string => typeof v === 'string';
 function checkShape(m: Record<string, unknown>): Manifest {
     const bad = (what: string) => new RobticError('damaged', `The file is damaged (${what}).`);
     if (typeof m.format !== 'number' || !Number.isInteger(m.format) || m.format < 1) throw bad('format');
-    if (!isStr(m.kind) || !m.kind) throw bad('kind');
+    if (!isStr(m.kind) || !KIND_NAME.test(m.kind)) throw bad('kind');
     if (typeof m.kindVersion !== 'number' || !Number.isInteger(m.kindVersion) || m.kindVersion < 1) throw bad('kindVersion');
     const meta = m.meta;
     if (!isObject(meta) || !isStr(meta.name) || !isStr(meta.createdAt)) throw bad('meta');

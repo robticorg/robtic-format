@@ -17,7 +17,7 @@ bundles. The format itself is described in [SPEC.md](SPEC.md); the manifest's JS
 ```ts
 import { RobticWriter } from '@robtic/format';
 
-const w = new RobticWriter('system.autoreplies', 1, { name: 'Support replies', author: { name: 'robo' } });
+const w = new RobticWriter('discord.bot.system.autoreplies', 1, { name: 'Support replies', author: { name: 'robo' } });
 const logo = await w.asset(pngBytes, 'image/png', 'logo.png');            // → { $asset: 'a1' }
 const role = w.ref('roles', { name: 'Support', id: roleId, server: guildId }); // → { $ref: 'r1' }
 const file = await w.build({ rules: [{ triggers: ['hi'], files: [logo], mentionRole: role }] });
@@ -31,7 +31,7 @@ download(new Blob([file.bytes], { type: file.mime }), file.fileName); // "suppor
 import { readRobticOrLegacy, resolvePointers, suggestMatches, RobticError } from '@robtic/format';
 
 try {
-    const r = await readRobticOrLegacy(fileFromInput, { kind: 'system.autoreplies' });
+    const r = await readRobticOrLegacy(fileFromInput, { kind: 'discord.bot.system.autoreplies' });
     if ('legacy' in r) return importOldJson(r.raw);          // exports from before .robtic
 
     const guesses = suggestMatches(r.manifest.refs, { serverId, roles, channels }); // { r1: '123…' | null }

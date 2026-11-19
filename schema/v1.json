@@ -8,7 +8,7 @@
   "properties": {
     "$robtic": { "type": "string", "const": "https://robtic.org/schema/v1" },
     "format": { "type": "integer", "const": 1 },
-    "kind": { "type": "string", "minLength": 1, "examples": ["system.autoreplies", "system.panels", "system.automod.template", "ticket.settings", "ticket.panel", "ticket.infoPanels", "staff.ladder", "music.panel", "bundle"] },
+    "kind": { "type": "string", "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-zA-Z0-9]*)+$", "examples": ["discord.bot.system.autoreplies", "discord.bot.system.panels", "discord.bot.system.automodTemplate", "discord.bot.ticket.settings", "discord.bot.ticket.panel", "discord.bot.ticket.infoPanels", "discord.bot.staff.ladder", "discord.bot.voice.musicPanel", "discord.server.bundle", "hosting.backup.minecraft"] },
     "kindVersion": { "type": "integer", "minimum": 1 },
     "meta": {
       "type": "object",

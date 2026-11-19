@@ -109,7 +109,7 @@ Zip rules (a reader refuses anything else):
 {
   "$robtic": "https://robtic.org/schema/v1",
   "format": 1,
-  "kind": "ticket.panel",
+  "kind": "discord.bot.ticket.panel",
   "kindVersion": 3,
 
   "meta": {
@@ -165,17 +165,32 @@ can be created.
 
 ## 5. Kinds
 
+Every kind starts with the product, so products never clash. One extension, many kinds: never a second extension.
+
+| Pattern | Examples |
+|---|---|
+| `discord.bot.<bot>.<what>` | `discord.bot.system.autoreplies`, `discord.bot.ticket.panel` |
+| `discord.server.<what>` | `discord.server.bundle` |
+| `hosting.<area>.<type>` (future) | `hosting.backup.minecraft`, `hosting.backup.database`, `hosting.node.config` |
+| `account.<what>` (future) | `account.profile` |
+
+Rules: segments are lowercase or camelCase words (`^[a-z][a-z0-9]*(\.[a-z][a-zA-Z0-9]*)+$`). A name never changes
+once files exist; a new shape bumps `kindVersion`. Limits can differ per kind (a hosting backup may be far larger
+than a panel). A reader that meets a kind it doesn't know still names the product: "This is a Robtic Hosting file."
+
+Kinds in format 1:
+
 | `kind` | Exported from | `data` holds |
 |---|---|---|
-| `system.autoreplies` | Robtic System → Auto reply | Triggers, replies, weights, options; attachments as assets |
-| `system.panels` | Robtic System → Panels | Panel designs; images as assets |
-| `system.automod.template` | AutoMod → Mine | Words, regex, checks, Robtic Rules, default actions. Open templates only |
-| `ticket.settings` | Robtic Ticket → Settings | All settings except where panels are posted |
-| `ticket.panel` | A ticket panel | Panel, options, forms, permissions |
-| `ticket.infoPanels` | Robtic Ticket → Info panels | Info panels |
-| `staff.ladder` | Robtic Staff | Ranks, tiers, point values |
-| `music.panel` | Robtic Voice | Control panel look |
-| `bundle` | Server → Export (later) | `{ "items": [ { "kind", "kindVersion", "data" } ] }`: a whole server setup ("Robtic environment") |
+| `discord.bot.system.autoreplies` | Robtic System → Auto reply | Triggers, replies, weights, options; attachments as assets |
+| `discord.bot.system.panels` | Robtic System → Panels | Panel designs; images as assets |
+| `discord.bot.system.automodTemplate` | AutoMod → Mine | Words, regex, checks, Robtic Rules, default actions. Open templates only |
+| `discord.bot.ticket.settings` | Robtic Ticket → Settings | All settings except where panels are posted |
+| `discord.bot.ticket.panel` | A ticket panel | Panel, options, forms, permissions |
+| `discord.bot.ticket.infoPanels` | Robtic Ticket → Info panels | Info panels |
+| `discord.bot.staff.ladder` | Robtic Staff | Ranks, tiers, point values |
+| `discord.bot.voice.musicPanel` | Robtic Voice | Control panel look |
+| `discord.server.bundle` | Server → Export (later) | `{ "items": [ { "kind", "kindVersion", "data" } ] }`: a whole server setup ("Robtic environment") |
 
 ---
 

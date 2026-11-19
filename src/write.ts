@@ -2,7 +2,7 @@ import { zipSync } from 'fflate';
 import { ASSET_TYPES, DEFAULT_LIMITS, EXTENSION, FORMAT, MANIFEST_FILE, MIME_PACKED, MIME_PLAIN, SCHEMA_URL, type Limits } from './constants.ts';
 import { RobticError } from './errors.ts';
 import { canonicalJson, sha256 } from './hash.ts';
-import type { Kind } from './kinds.ts';
+import { KIND_NAME, type Kind } from './kinds.ts';
 import { integrityScope, type AssetEntry, type AssetPointer, type Manifest, type Meta, type RefEntry, type RefGroup, type RefPointer, type Refs } from './manifest.ts';
 import { collectPointers } from './refs.ts';
 import { findSecret } from './secrets.ts';
@@ -23,7 +23,7 @@ export interface BuiltFile {
 /**
  * Builds one .robtic file.
  *
- *   const w = new RobticWriter('system.autoreplies', 1, { name: 'Support replies' });
+ *   const w = new RobticWriter('discord.bot.system.autoreplies', 1, { name: 'Support replies' });
  *   const img = await w.asset(bytes, 'image/png', 'logo.png');      // → { $asset: 'a1' }
  *   const role = w.ref('roles', { name: 'Support', id, server });   // → { $ref: 'r1' }
  *   const file = await w.build({ rules: [...] });
@@ -41,6 +41,7 @@ export class RobticWriter {
         meta: Omit<Meta, 'createdAt'> & { createdAt?: string },
         limits: Partial<Limits> = {},
     ) {
+        if (!KIND_NAME.test(kind)) throw new RobticError('damaged', `"${kind}" isn't a valid kind name (product.part.part).`);
         if (!Number.isInteger(kindVersion) || kindVersion < 1) throw new RobticError('damaged', 'kindVersion must be a whole number from 1.');
         this.limits = { ...DEFAULT_LIMITS, ...limits };
         this.meta = { ...meta, createdAt: meta.createdAt ?? new Date().toISOString() };

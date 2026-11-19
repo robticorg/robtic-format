@@ -26,7 +26,7 @@ async function expectCode(p: Promise<unknown>, code: string) {
 /** A manifest written by hand (bypassing the writer's checks), with a correct checksum. */
 async function handMade(over: Partial<Manifest> = {}): Promise<Uint8Array> {
     const m: Manifest = {
-        $robtic: SCHEMA_URL, format: FORMAT, kind: 'system.autoreplies', kindVersion: 1,
+        $robtic: SCHEMA_URL, format: FORMAT, kind: 'discord.bot.system.autoreplies', kindVersion: 1,
         meta: { name: 'x', createdAt: '2026-11-19T00:00:00Z' }, refs: {}, assets: {}, data: { rules: [] },
         integrity: { sha256: '' }, ...over,
     };
@@ -36,7 +36,7 @@ async function handMade(over: Partial<Manifest> = {}): Promise<Uint8Array> {
 
 describe('writing and reading', () => {
     test('a plain file round-trips', async () => {
-        const w = new RobticWriter('ticket.settings', 2, { name: 'My settings', lang: 'en' });
+        const w = new RobticWriter('discord.bot.ticket.settings', 2, { name: 'My settings', lang: 'en' });
         const role = w.ref('roles', { name: 'Support', id: '111', server: '999', color: '#1793ff' });
         const again = w.ref('roles', { name: 'Support (renamed)', id: '111', server: '999' });
         const ch = w.ref('channels', { name: 'tickets', type: 'category' });
@@ -47,7 +47,7 @@ describe('writing and reading', () => {
         expect(file.fileName).toBe('my-settings.robtic');
         expect(again).toEqual(role);
 
-        const read = await readRobtic(file.bytes, { kind: 'ticket.settings' });
+        const read = await readRobtic(file.bytes, { kind: 'discord.bot.ticket.settings' });
         expect(read.packed).toBe(false);
         expect(read.manifest.kindVersion).toBe(2);
         expect(read.manifest.refs.roles?.r1).toEqual({ name: 'Support', id: '111', server: '999', color: '#1793ff' });
@@ -55,7 +55,7 @@ describe('writing and reading', () => {
     });
 
     test('a packed file carries its pictures, stored once by SHA-256', async () => {
-        const w = new RobticWriter('system.autoreplies', 1, { name: 'Support replies' });
+        const w = new RobticWriter('discord.bot.system.autoreplies', 1, { name: 'Support replies' });
         const a = await w.asset(PNG, 'image/png', 'logo.png');
         const b = await w.asset(PNG, 'image/png', 'logo-copy.png');
         const c = await w.asset(PDF, 'application/pdf', 'rules.pdf');
@@ -73,9 +73,9 @@ describe('writing and reading', () => {
     });
 
     test('reads from a Blob too (what a browser file input gives)', async () => {
-        const file = await new RobticWriter('staff.ladder', 1, { name: 'L' }).build({ ranks: [] });
+        const file = await new RobticWriter('discord.bot.staff.ladder', 1, { name: 'L' }).build({ ranks: [] });
         const read = await readRobtic(new Blob([file.bytes as Uint8Array<ArrayBuffer>]));
-        expect(read.manifest.kind).toBe('staff.ladder');
+        expect(read.manifest.kind).toBe('discord.bot.staff.ladder');
     });
 });
 
@@ -114,19 +114,30 @@ describe('refuses bad files', () => {
     });
 
     test('opened on the wrong page says where it belongs', async () => {
-        const file = await new RobticWriter('system.automod.template', 1, { name: 'Anti scam' }).build({});
-        const e = await expectCode(readRobtic(file.bytes, { kind: ['ticket.panel', 'ticket.settings'] }), 'wrong-kind');
-        expect(e.kind).toBe('system.automod.template');
+        const file = await new RobticWriter('discord.bot.system.automodTemplate', 1, { name: 'Anti scam' }).build({});
+        const e = await expectCode(readRobtic(file.bytes, { kind: ['discord.bot.ticket.panel', 'discord.bot.ticket.settings'] }), 'wrong-kind');
+        expect(e.kind).toBe('discord.bot.system.automodTemplate');
         expect(e.message).toBe('This is an AutoMod template. Open it in Robtic System → AutoMod.');
-        expect(wrongPlaceMessage('ticket.panel')).toBe('This is a Ticket panel. Open it in Robtic Ticket → Panels.');
+        expect(wrongPlaceMessage('discord.bot.ticket.panel')).toBe('This is a Ticket panel. Open it in Robtic Ticket → Panels.');
+        // A kind from the future still says which product it belongs to.
+        expect(wrongPlaceMessage('hosting.backup.minecraft')).toBe('This is a Robtic Hosting file. Open it in Robtic Hosting.');
+        expect(wrongPlaceMessage('spaceship.engine')).toBe('This file was made by a newer version of Robtic. Refresh the page and try again.');
     });
 
     test('made by a newer Robtic', async () => {
         await expectCode(readRobtic(await handMade({ format: FORMAT + 1 })), 'unsupported');
     });
 
+    test('kind names must follow product.part(.part…)', async () => {
+        await expectCode(readRobtic(await handMade({ kind: 'autoreplies' })), 'damaged');
+        await expectCode(readRobtic(await handMade({ kind: 'Discord.Bot' })), 'damaged');
+        await expectCode(readRobtic(await handMade({ kind: 'discord..x' })), 'damaged');
+        // An unknown but well-formed kind reads fine when the page doesn't restrict kinds (e.g. a generic preview).
+        expect((await readRobtic(await handMade({ kind: 'hosting.backup.minecraft' }))).manifest.kind).toBe('hosting.backup.minecraft');
+    });
+
     test('content changed after export', async () => {
-        const file = await new RobticWriter('system.autoreplies', 1, { name: 'x' }).build({ rules: ['a'] });
+        const file = await new RobticWriter('discord.bot.system.autoreplies', 1, { name: 'x' }).build({ rules: ['a'] });
         const m = JSON.parse(new TextDecoder().decode(file.bytes));
         m.data.rules.push('b');
         await expectCode(readRobtic(strToU8(JSON.stringify(m))), 'damaged');
@@ -137,7 +148,7 @@ describe('refuses bad files', () => {
     });
 
     test('a picture swapped inside the zip', async () => {
-        const w = new RobticWriter('system.panels', 1, { name: 'p' });
+        const w = new RobticWriter('discord.bot.system.panels', 1, { name: 'p' });
         const a = await w.asset(PNG, 'image/png');
         const file = await w.build({ img: a });
         const json = JSON.stringify((await readRobtic(file.bytes)).manifest);
@@ -146,7 +157,7 @@ describe('refuses bad files', () => {
     });
 
     test('a program posing as a picture', async () => {
-        const w = new RobticWriter('system.panels', 1, { name: 'p' });
+        const w = new RobticWriter('discord.bot.system.panels', 1, { name: 'p' });
         await expectCode(w.asset(strToU8('MZ\x90\x00 not a png'), 'image/png', 'evil.png'), 'unsafe');
         await expectCode(w.asset(PNG, 'application/x-msdownload'), 'unsafe');
     });
@@ -166,19 +177,19 @@ describe('refuses bad files', () => {
 
     test('pointers to things that are not there', async () => {
         await expectCode(readRobtic(await handMade({ data: { role: { $ref: 'r9' } } })), 'damaged');
-        await expectCode(new RobticWriter('system.panels', 1, { name: 'p' }).build({ img: { $asset: 'a1' } }), 'damaged');
+        await expectCode(new RobticWriter('discord.bot.system.panels', 1, { name: 'p' }).build({ img: { $asset: 'a1' } }), 'damaged');
     });
 
     test('size limits', async () => {
         await expectCode(readRobtic(new Uint8Array(2048), { limits: { fileBytes: 1024 } }), 'too-big');
-        const w = new RobticWriter('system.panels', 1, { name: 'p' }, { assetBytes: 8 });
+        const w = new RobticWriter('discord.bot.system.panels', 1, { name: 'p' }, { assetBytes: 8 });
         await expectCode(w.asset(PNG, 'image/png'), 'too-big');
     });
 });
 
 describe('never carries secrets', () => {
     test('the writer refuses tokens, webhooks and secret fields', async () => {
-        const w = () => new RobticWriter('system.autoreplies', 1, { name: 'x' });
+        const w = () => new RobticWriter('discord.bot.system.autoreplies', 1, { name: 'x' });
         await expectCode(w().build({ text: `my token ${FAKE_TOKEN}` }), 'secret');
         await expectCode(w().build({ url: 'https://discord.com/api/webhooks/123/abcDEF_-' }), 'secret');
         await expectCode(w().build({ bot: { token: 'anything' } }), 'secret');
