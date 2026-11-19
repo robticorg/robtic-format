@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://robtic.org/schema/v1",
+  "title": ".robtic manifest",
+  "description": "The manifest of a .robtic file: the whole file when plain, robtic.json when packed. See SPEC.md.",
+  "type": "object",
+  "required": ["format", "kind", "kindVersion", "meta", "refs", "assets", "data", "integrity"],
+  "properties": {
+    "$robtic": { "type": "string", "const": "https://robtic.org/schema/v1" },
+    "format": { "type": "integer", "const": 1 },
+    "kind": { "type": "string", "minLength": 1, "examples": ["system.autoreplies", "system.panels", "system.automod.template", "ticket.settings", "ticket.panel", "ticket.infoPanels", "staff.ladder", "music.panel", "bundle"] },
+    "kindVersion": { "type": "integer", "minimum": 1 },
+    "meta": {
+      "type": "object",
+      "required": ["name", "createdAt"],
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdWith": { "type": "string" },
+        "author": { "type": "object", "properties": { "name": { "type": "string" }, "server": { "type": "string" } }, "additionalProperties": false },
+        "lang": { "type": "string" }
+      }
+    },
+    "refs": {
+      "type": "object",
+      "propertyNames": { "enum": ["roles", "channels", "emojis", "members"] },
+      "additionalProperties": { "type": "object", "additionalProperties": { "$ref": "#/$defs/refEntry" } }
+    },
+    "assets": { "type": "object", "additionalProperties": { "$ref": "#/$defs/asset" } },
+    "data": {},
+    "integrity": {
+      "type": "object",
+      "required": ["sha256"],
+      "properties": { "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }
+    }
+  },
+  "$defs": {
+    "refEntry": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "id": { "type": "string" },
+        "server": { "type": "string" },
+        "type": { "type": "string" },
+        "color": { "type": "string" },
+        "animated": { "type": "boolean" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "required": ["file", "type", "size", "sha256"],
+      "properties": {
+        "file": { "type": "string", "pattern": "^assets/[0-9a-f]{64}\.(png|jpg|webp|gif|pdf|txt)$" },
+        "type": { "enum": ["image/png", "image/jpeg", "image/webp", "image/gif", "application/pdf", "text/plain"] },
+        "size": { "type": "integer", "minimum": 0 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "name": { "type": "string" }
+      }
+    }
+  }
+}
