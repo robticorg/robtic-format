@@ -1,6 +1,6 @@
 {
   "name": "@robtic/format",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reader and writer for .robtic files: Robtic's export format for auto replies, panels, AutoMod templates, ticket settings and more.",
   "license": "UNLICENSED",
   "type": "module",
