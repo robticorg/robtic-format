@@ -117,8 +117,9 @@ describe('refuses bad files', () => {
         const file = await new RobticWriter('discord.bot.system.automodTemplate', 1, { name: 'Anti scam' }).build({});
         const e = await expectCode(readRobtic(file.bytes, { kind: ['discord.bot.ticket.panel', 'discord.bot.ticket.settings'] }), 'wrong-kind');
         expect(e.kind).toBe('discord.bot.system.automodTemplate');
-        expect(e.message).toBe('This is an AutoMod template. Open it in Robtic System → AutoMod.');
-        expect(wrongPlaceMessage('discord.bot.ticket.panel')).toBe('This is a Ticket panel. Open it in Robtic Ticket → Panels.');
+        expect(e.message).toBe('This file holds an AutoMod template. Open it in Robtic System → AutoMod.');
+        expect(wrongPlaceMessage('discord.bot.ticket.panel')).toBe('This file holds a ticket panel. Open it in Robtic Ticket → Panels.');
+        expect(wrongPlaceMessage('discord.bot.ticket.settings')).toBe('This file holds ticket settings. Open it in Robtic Ticket → Settings.');
         // A kind from the future still says which product it belongs to.
         expect(wrongPlaceMessage('hosting.backup.minecraft')).toBe('This is a Robtic Hosting file. Open it in Robtic Hosting.');
         expect(wrongPlaceMessage('spaceship.engine')).toBe('This file was made by a newer version of Robtic. Refresh the page and try again.');

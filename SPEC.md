@@ -52,7 +52,7 @@ is secretly a zip but Word users only ever see `.docx`.
 ### Wrong place
 
 Dropping `anti-scam.robtic` into Robtic Ticket shows:
-> This is an **AutoMod template**. Open it in Robtic System → AutoMod.
+> This file holds an **AutoMod template**. Open it in Robtic System → AutoMod.
 
 instead of "invalid file".
 

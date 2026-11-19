@@ -10,16 +10,16 @@
  * shape for the same thing bumps kindVersion instead.
  */
 export const KINDS = {
-    'discord.bot.system.autoreplies': { label: 'Auto replies', where: 'Robtic System → Auto reply' },
-    'discord.bot.system.panels': { label: 'Panels', where: 'Robtic System → Panels' },
-    'discord.bot.system.automodTemplate': { label: 'AutoMod template', where: 'Robtic System → AutoMod' },
-    'discord.bot.ticket.settings': { label: 'Ticket settings', where: 'Robtic Ticket → Settings' },
-    'discord.bot.ticket.panel': { label: 'Ticket panel', where: 'Robtic Ticket → Panels' },
-    'discord.bot.ticket.infoPanels': { label: 'Info panels', where: 'Robtic Ticket → Info panels' },
-    'discord.bot.staff.ladder': { label: 'Staff ladder', where: 'Robtic Staff' },
-    'discord.bot.voice.musicPanel': { label: 'Music panel', where: 'Robtic Voice' },
-    'discord.server.bundle': { label: 'Server setup', where: 'Robtic Discord → Server → Import' },
-} as const satisfies Record<string, { label: string; where: string }>;
+    'discord.bot.system.autoreplies': { label: 'Auto replies', what: 'auto replies', where: 'Robtic System → Auto reply' },
+    'discord.bot.system.panels': { label: 'Panels', what: 'panels', where: 'Robtic System → Panels' },
+    'discord.bot.system.automodTemplate': { label: 'AutoMod template', what: 'an AutoMod template', where: 'Robtic System → AutoMod' },
+    'discord.bot.ticket.settings': { label: 'Ticket settings', what: 'ticket settings', where: 'Robtic Ticket → Settings' },
+    'discord.bot.ticket.panel': { label: 'Ticket panel', what: 'a ticket panel', where: 'Robtic Ticket → Panels' },
+    'discord.bot.ticket.infoPanels': { label: 'Info panels', what: 'info panels', where: 'Robtic Ticket → Info panels' },
+    'discord.bot.staff.ladder': { label: 'Staff ladder', what: 'a staff ladder', where: 'Robtic Staff' },
+    'discord.bot.voice.musicPanel': { label: 'Music panel', what: 'a music panel', where: 'Robtic Voice' },
+    'discord.server.bundle': { label: 'Server setup', what: 'a server setup', where: 'Robtic Discord → Server → Import' },
+} as const satisfies Record<string, { label: string; what: string; where: string }>;
 
 export type Kind = keyof typeof KINDS;
 
@@ -36,13 +36,13 @@ export const KIND_NAME = /^[a-z][a-z0-9]*(?:\.[a-z][a-zA-Z0-9]*)+$/;
 export const isKind = (k: unknown): k is Kind => typeof k === 'string' && Object.hasOwn(KINDS, k);
 
 /**
- * "This is an AutoMod template. Open it in Robtic System → AutoMod." For a kind this version doesn't know yet, it
+ * "This file holds an AutoMod template. Open it in Robtic System → AutoMod." For a kind this version doesn't know yet, it
  * still says which product the file belongs to: "This is a Robtic Hosting file. Open it in Robtic Hosting."
  */
 export function wrongPlaceMessage(kind: string): string {
     if (isKind(kind)) {
         const k = KINDS[kind];
-        return `This is ${article(k.label)} ${k.label}. Open it in ${k.where}.`;
+        return `This file holds ${k.what}. Open it in ${k.where}.`;
     }
     const product = kind.split('.')[0] ?? '';
     if (Object.hasOwn(PRODUCTS, product)) {
@@ -52,4 +52,3 @@ export function wrongPlaceMessage(kind: string): string {
     return 'This file was made by a newer version of Robtic. Refresh the page and try again.';
 }
 
-const article = (word: string) => (/^[AEIOU]/.test(word) ? 'an' : 'a');
