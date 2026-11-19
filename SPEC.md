@@ -56,10 +56,6 @@ Dropping `anti-scam.robtic` into Robtic Ticket shows:
 
 instead of "invalid file".
 
-### Old files
-
-`.json` exports made before this format still import (treated as version 0 and upgraded).
-
 ---
 
 ## 2. Inside the file
@@ -201,7 +197,7 @@ Kinds in format 1:
 - **Limits:** about 25 MB per file, 10 MB per asset, safe types only (images, PDF, TXT). Zip entries are checked
   (count, sizes, paths, compression ratio) before extracting.
 - **Preview first:** import never applies anything without the preview and a confirm, followed by a normal save.
-- **Backwards compatible:** old `.json` exports import as `format: 0`.
+- **Only `.robtic`:** there is no `.json` import; Robtic never shipped another export format.
 
 ---
 

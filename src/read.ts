@@ -23,12 +23,6 @@ export interface RobticFile<D = unknown> {
     assets: Map<string, ReadAsset>;
 }
 
-/** A JSON file from before .robtic existed. The page decides how to upgrade `raw`. */
-export interface LegacyFile {
-    legacy: true;
-    raw: unknown;
-}
-
 export interface ReadOptions {
     /** The kind(s) this page imports. Anything else fails with 'wrong-kind' and a "open it in …" message. */
     kind?: Kind | readonly Kind[];
@@ -39,13 +33,6 @@ type Input = Uint8Array | ArrayBuffer | Blob;
 
 /** Reads and fully checks a .robtic file. Throws RobticError with a message meant for the person importing. */
 export async function readRobtic<D = unknown>(input: Input, opts: ReadOptions = {}): Promise<RobticFile<D>> {
-    const r = await readRobticOrLegacy<D>(input, opts);
-    if ('legacy' in r) throw new RobticError('not-robtic', 'This isn\'t a .robtic file.');
-    return r;
-}
-
-/** Like readRobtic, but a plain JSON file without the .robtic header comes back as { legacy: true, raw }. */
-export async function readRobticOrLegacy<D = unknown>(input: Input, opts: ReadOptions = {}): Promise<RobticFile<D> | LegacyFile> {
     const limits = { ...DEFAULT_LIMITS, ...opts.limits };
     const bytes = await toBytes(input, limits);
 
@@ -69,10 +56,7 @@ export async function readRobticOrLegacy<D = unknown>(input: Input, opts: ReadOp
         throw new RobticError(packed ? 'damaged' : 'not-robtic', packed ? 'The file is damaged.' : 'This isn\'t a .robtic file.');
     }
     if (!isObject(raw)) throw new RobticError('not-robtic', 'This isn\'t a .robtic file.');
-    if (!('format' in raw) && !('$robtic' in raw)) {
-        if (packed) throw new RobticError('damaged', 'The file is damaged.');
-        return { legacy: true, raw };
-    }
+    if (!('format' in raw) && !('$robtic' in raw)) throw new RobticError(packed ? 'damaged' : 'not-robtic', packed ? 'The file is damaged.' : 'This isn\'t a .robtic file.');
 
     const manifest = checkShape(raw);
     if (manifest.format > FORMAT) throw new RobticError('unsupported', 'This file was made by a newer version of Robtic. Refresh the page and try again.');

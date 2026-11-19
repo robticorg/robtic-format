@@ -28,11 +28,10 @@ download(new Blob([file.bytes], { type: file.mime }), file.fileName); // "suppor
 ## Read
 
 ```ts
-import { readRobticOrLegacy, resolvePointers, suggestMatches, RobticError } from '@robtic/format';
+import { readRobtic, resolvePointers, suggestMatches, RobticError } from '@robtic/format';
 
 try {
-    const r = await readRobticOrLegacy(fileFromInput, { kind: 'discord.bot.system.autoreplies' });
-    if ('legacy' in r) return importOldJson(r.raw);          // exports from before .robtic
+    const r = await readRobtic(fileFromInput, { kind: 'discord.bot.system.autoreplies' });
 
     const guesses = suggestMatches(r.manifest.refs, { serverId, roles, channels }); // { r1: '123…' | null }
     // …show the preview + matching step, upload r.assets (already hash-checked)…

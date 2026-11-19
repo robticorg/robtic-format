@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { strToU8, zipSync } from 'fflate';
 import {
-    canonicalJson, FORMAT, integrityScope, MIME_PACKED, MIME_PLAIN, readRobtic, readRobticOrLegacy, resolvePointers,
+    canonicalJson, FORMAT, integrityScope, MIME_PACKED, MIME_PLAIN, readRobtic, resolvePointers,
     RobticError, RobticWriter, robticFileName, SCHEMA_URL, sha256, suggestMatches, wrongPlaceMessage, type Manifest,
 } from '../src/index.ts';
 
@@ -106,11 +106,6 @@ describe('refuses bad files', () => {
         await expectCode(readRobtic(strToU8('hello')), 'not-robtic');
         await expectCode(readRobtic(new Uint8Array()), 'not-robtic');
         await expectCode(readRobtic(strToU8('{"rules":[]}')), 'not-robtic');
-    });
-
-    test('an old .json export comes back as legacy', async () => {
-        const r = await readRobticOrLegacy(strToU8('{"rules":[{"triggers":["hi"]}]}'));
-        expect(r).toEqual({ legacy: true, raw: { rules: [{ triggers: ['hi'] }] } });
     });
 
     test('opened on the wrong page says where it belongs', async () => {
