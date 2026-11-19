@@ -208,3 +208,11 @@ test('file names keep Arabic and drop symbols', () => {
     expect(robticFileName('ردود الدعم')).toBe('ردود-الدعم.robtic');
     expect(robticFileName('***')).toBe('robtic-export.robtic');
 });
+
+test('the published JSON Schema is valid JSON and agrees with the reader', async () => {
+    const schema = JSON.parse(await Bun.file(new URL('../schema/v1.json', import.meta.url)).text());
+    const kind = new RegExp(schema.properties.kind.pattern);
+    expect(kind.test('discord.bot.system.autoreplies')).toBe(true);
+    expect(kind.test('autoreplies')).toBe(false);
+    expect(new RegExp(schema.$defs.asset.properties.file.pattern).test(`assets/${'a'.repeat(64)}.png`)).toBe(true);
+});

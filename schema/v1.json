@@ -52,7 +52,7 @@
       "type": "object",
       "required": ["file", "type", "size", "sha256"],
       "properties": {
-        "file": { "type": "string", "pattern": "^assets/[0-9a-f]{64}\.(png|jpg|webp|gif|pdf|txt)$" },
+        "file": { "type": "string", "pattern": "^assets/[0-9a-f]{64}\\.(png|jpg|webp|gif|pdf|txt)$" },
         "type": { "enum": ["image/png", "image/jpeg", "image/webp", "image/gif", "application/pdf", "text/plain"] },
         "size": { "type": "integer", "minimum": 0 },
         "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
